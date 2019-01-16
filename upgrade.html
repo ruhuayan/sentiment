@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Nebula AI Upgrade</title>
+    <meta charset="utf-8">
+    <meta name="description" content="Nebula AI blockchain tool">
+    <meta name="keywords" content="AI, Blockchain">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+        crossorigin="anonymous">
+    <!-- <link href="../css/main.css" rel="stylesheet" type="text/css" /> -->
+    <link rel="stylesheet" href="_include/css/bootstrap.min.css">
+    <link href="_include/css/upgrade.css" rel="stylesheet" type="text/css" />
+    <!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> -->
+    <style>
+    </style>
+</head>
+
+<body>
+    <div class="content row">
+        <div class="progress_bar col-md-2 col-sm-3 ">
+            <a href="index.html">
+                <div class="top-btn">SENTIMENT ANALYSIS
+                </div>
+            </a>
+            <div class="searchForm" role="form">
+                <div class="form">
+                    <form id="search">
+                        <div class="search-icon">
+                            <img src="_include/img/upgrade/search_icon.png" alt="Search icon" />
+                        </div>
+                        <div class="title">SEARCH FOR ARTICLE</div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="keyword" placeholder="Keyword">
+                        </div>
+                        <div class="form-group">
+                            <label for="limit">Limits:</label>
+                            <input type="text" class="form-control" id="limit" name="limit" value="30">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-default" id="submit" type="submit" disabled>Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class='loading' hidden>
+                <div class='bullet'></div>
+                <div class='bullet'></div>
+                <div class='bullet'></div>
+                <div class='bullet'></div>
+            </div>
+            <div class="text-center bottom" style="margin-bottom: 2rem;">
+                <img src="_include/img/index/sentiment_analysis_logo.png" alt="Sentiment Logo" style="width: 50px;">
+            </div>
+        </div>
+        <div class="form_section col-md-10 col-sm-9">
+            <div class="form_content col-md-12">
+                <div class="hightchart" id="hightchart">
+                    <p id="outerror" style="visibility: hidden;">Oops! Something went wrong...</p>
+                    <p id='calculating'>Calculating...</p>
+                </div>
+            </div>
+            <div class="footer text-center col-md-12">
+                All Right Reserved @ Nebula AI
+            </div>
+            <!-- <div class="footer-logo">
+                <p>
+                    <img src="../images/create/quant ai logo.png" alt="quant ai logo">
+                </p>
+                <p class="desc copyright">Copyright reserved by NEBULA AI
+                    <br/>&copy;2017 - 2022</p>
+            </div> -->
+            <div class="chart-example" id="layer">
+                <!-- <svg></svg> -->
+                <div class="bubble-content">
+                    <!-- <div class="top-content">Info collects from twitter</div> -->
+                    <div class="top-logo" style="background: #f9f9f9;">
+                        <i class="fab fa-twitter"></i>
+                    </div>
+                    <div class="main-content">
+                        <div class="date"></div>
+                        <div class="title subtitle" id="title">Title</div>
+                        <div class="title-content">
+                            We are thankful for the great audience at Monaco International Blockchain. Now off to the next one, see you soon Malta! #mibmonaco
+                            #monaco #cryptonews #blockchain #conference #pitch #crypto #bitcoin #ethereum #bethereumpic.twitter.com/kyqcJoFsrR
+                        </div>
+                        <div class="sum subtitle" id="title">Summary</div>
+                        <div class="sum-content">
+                            Comming Soon ...
+                        </div>
+                        <div class="url subtitle">URL</div>
+                        <div class="url-content">
+                            <a href="www.twitter.com">www.twitter.com</a>
+                        </div>
+                        <div class="tweet subtitle">Retweet</div>
+                        <div class="tweet-content">5000</div>
+                        <div class="button">
+                            <button class="confirm">Proceed</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="_include/js/jquery-3.3.1.min.js"></script>
+    <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
+    <script src="_include/js/bootstrap.min.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="_include/js/TweenMax.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.6.0/d3.min.js"></script> -->
+    <!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <!-- <script src="../js/bubble_chart.js"></script> -->
+    <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
+    <!-- <script src="../js/comment.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg-min.js"></script> -->
+    <script>
+        const today = new Date();
+        let ts = Math.round(today.getTime() / 1000);
+        let tsMonthAgo = ts - 30 * 14400;
+        let url = "https://poloniex.com/public?command=returnChartData&currencyPair=USDT_ETH&start=" + tsMonthAgo + "&end=" + ts + "&period=14400";
+        let historyData = [], forecast = [], sentiments = [], forecastColor;
+        const histoyColor = '#f5b94c', sentimentColor = '#5757ce';
+        let sentPoints = {}, forePoints = {}, historyPoints;
+
+        (function init() {
+            $.getJSON(url, function (result) {
+                console.log(result);
+                for (let i = 0; i < 30; i++) {
+                    const point = { x: result[i].date * 1000, y: result[i].high };
+                    historyData.push(point);
+                } console.log(historyData);
+                createHistoryPoints(result);
+                waiting(() => {
+                    createChart(historyData, sentiments, forecast);
+                    $('#submit').removeAttr('disabled');
+                });
+            });
+        })();
+        function createHistoryPoints(data) {
+            const highestPoint = data.reduce(function (prev, current) {
+                return (prev.high > current.high) ? prev : current
+            })
+            const lowestPoint = data.reduce(function (prev, current) {
+                return (prev.high < current.high) ? prev : current
+            });     //console.log(lowestPoint, highestPoint);
+            historyPoints = {
+                type: 'flags',
+                data: [{
+                    x: highestPoint.date * 1000,
+                    title: 'A',
+                    text: 'Highest price in the month"'
+                }, {
+                    x: lowestPoint.date * 1000,
+                    title: 'B',
+                    text: 'Eth Lowest price in the month'
+                }, {
+                    x: highestPoint.date * 1000 + 14400000,
+                    title: 'C',
+                    text: 'Eth falls'
+                }, {
+                    x: lowestPoint.date * 1000 + 14400000,
+                    title: 'D',
+                    text: 'Eth bounches back'
+                }],
+                color: histoyColor, // same as onSeries
+                fillColor: histoyColor,
+                // borderColor: histoyColor, 
+                style: { color: 'white' },
+                states: {
+                    hover: {
+                        fillColor: '#395C84' // darker
+                    }
+                },
+                onSeries: 'dataseries',
+                shape: 'circlepin',
+                width: 16
+            };
+        }
+        function createSentimentData() {
+            sentPoints = {
+                type: 'flags',
+                data: [{
+                    x: daysAgo(15),
+                    title: 'A',
+                    text: 'Sentiment starts to go negative ahead of opening'
+                }, {
+                    x: daysAgo(12),
+                    title: 'B',
+                    text: 'Social Sentiment recovers'
+                }],
+                onSeries: 'sentiment',
+                fillColor: sentimentColor,
+                style: { color: 'white' },
+                color: sentimentColor,
+                width: 16
+            }
+            let data = []; const sharpness = 30;
+            historyData.map(n => {
+                let rand = Math.floor(Math.random() * sharpness);
+                if (rand % 2 == 1) rand = -rand
+                let point = { x: n.x, y: n.y + rand }
+                data.push(point);
+            });
+            return data;
+        }
+        function createForecast(score) {
+            let endpoint = historyData[historyData.length - 1], data = [];
+            data.push(endpoint);
+            for (let i = 1; i <= 8; i++) {
+                let point = { x: endpoint.x + 60 * 60 * 1000 * 3, y: endpoint.y + (Math.random() * 10) * score };
+                endpoint = { x: point.x, y: (point.y + endpoint.y) / 2 };
+                data.push(point);
+            }
+            return data;
+        }
+        $('#search').submit((e) => {
+            e.preventDefault();
+            submit();
+        });
+        function submit() {
+            $('#submit').attr('disabled', 'disabled');
+            sentiments = createSentimentData();
+            waiting(
+                () => {
+                    createChart(historyData, sentiments);
+                    getTweets();
+                });
+        }
+        function getTweets() {
+            // let chartSection = $('.form_section');  console.log(chartSection.width(), chartSection.height())
+            $('#layer').css({ width: '100%' });
+            setTimeout(() => {
+                createBubbles();
+            }, 1000);
+        }
+        function createChart(data, sentiments = [], forecast = []) {
+            Highcharts.stockChart('hightchart', {
+                rangeSelector: { selected: 1 },
+                title: { text: 'ETH price' },
+                yAxis: {
+                    labels: {
+                        format: '${value}',
+                        style: { color: '#5757ce' }
+                    },
+                    title: { text: 'ETH Price' }
+                },
+                series: [{
+                    name: 'ETH to US$',
+                    data: data,
+                    id: 'dataseries',
+                    tooltip: {
+                        valueDecimals: 4
+                    },
+                    color: histoyColor
+                }, {
+                    name: 'Sentiment',
+                    data: sentiments,
+                    id: 'sentiment',
+                    tooltip: {
+                        valueDecimals: 4
+                    },
+                    color: sentimentColor
+                }, {
+                    name: 'ETH forecast',
+                    data: forecast,
+                    id: 'forecast',
+                    tooltip: {
+                        valueDecimals: 4
+                    },
+                    type: 'spline',
+                    dashStyle: 'shortdot',
+                    color: forecastColor
+                }, historyPoints, sentPoints, forePoints]
+            });
+        }
+
+        function waiting(callback, ms = 3000) {
+            $('.loading').removeAttr('hidden');   //console.log('run');
+            setTimeout(function () {
+                $('.loading').attr('hidden', 'hidden');
+                callback();
+            }, ms);
+        }
+        function daysAgo(ndays) {
+            return today.getTime() - ndays * 14400000;
+        }
+        $('.confirm').on('click', function (e) {
+            $('.bubble-content').css('height', '0vh');
+            setTimeout(() => {
+                $('#layer').addClass('pane').css({ width: '30px', 'background': $('.bubble-content').attr('color') }).find('svg').hide();
+                let score = $('.bubble-content').attr('score'); console.log(score);
+                let text = $('.bubble-content').attr('text');
+                forecastColor = score > 0 ? '#9ecc6b' : '#ff0000';
+                forecast = createForecast(score);
+                forePoints = {
+                    type: 'flags',
+                    data: [{
+                        x: forecast[3].x,
+                        title: 'A',
+                        text: text
+                    }],
+                    onSeries: 'forecast',
+                    fillColor: forecastColor,
+                    color: forecastColor,
+                    style: { color: 'white' },
+                    width: 16
+                };
+                createChart(historyData, sentiments, forecast);
+            }, 200);
+        });
+        $('#layer').click((e) => {    //console.log($('#layer').hasClass('pane'));
+            if ($('#layer').hasClass('pane')) {
+                $('#layer').removeClass('pane').css({ width: '100%', background: '#fff' });
+                setTimeout(() => {
+                    $('.bubble-content').css('height', '100vh');
+                    $('#layer').find('svg').show();
+                }, 1000)
+            }
+        });
+    </script>
+    <script>
+        function createBubbles() {
+            d3.csv('_include/json/Eth.csv', function (error, data) {
+                if (error) {
+                    console.error('Error getting or parsing the data.');
+                    throw error;
+                }
+
+                let width = $(window).width() * .7,
+                    height = 800,
+                    padding = 1.5, // separation between same-color nodes
+                    clusterPadding = 6, // separation between different-color nodes
+                    minRadius = 20;
+                maxRadius = 100, m = 3;  // number of distinct clusters
+
+                console.log(width, $(window).height());
+                var colors = ['#abd5ff', '#d8d8d8', '#ffe05c'];
+                // The largest node for each cluster.
+                var clusters = new Array(m);
+                // var minRadiusDomain = d3.min(data, function(d) { return +d.RETWEET;  });
+                var maxRadiusDomain = d3.max(data, function (d) { return +d.RETWEET; });
+                // var scaleRadius = d3.scaleLinear().domain([minRadiusDomain, maxRadiusDomain]).range([minRadius, maxRadius]);
+                for (var i in data) {
+                    var cluster = data[i].cluster = parseInt(data[i].LABEL) + 1,
+                        r = data[i].radius = parseInt(data[i].RETWEET) / maxRadiusDomain * maxRadius + minRadius;
+                    data[i].x = Math.cos(data[i].cluster / m * 2 * Math.PI) * 200 + width / 2 + Math.random();
+                    data[i].y = Math.sin(data[i].cluster / m * 2 * Math.PI) * 200 + height / 2 + Math.random();
+                    if (!clusters[cluster] || (r > clusters[cluster].radius)) clusters[cluster] = data[i];
+                } console.log(data);
+                var nodes = data; var firstTime = true;
+                createNodes();
+                function createNodes() {
+                    var force = d3.layout.force()
+                        .nodes(nodes)
+                        .size([width, height])
+                        .gravity(.02)
+                        .charge(0)
+                        .on("tick", tick)
+                        .start();
+                    var svg = d3.select("#layer").append('svg')
+                        .attr("width", width)
+                        .attr("height", height);
+                    var node = svg.selectAll("circle")
+                        .data(nodes)
+                        .enter().append("g").call(force.drag)
+                        .style('opacity', .8)
+                        .style('cursor', 'pointer')
+                        .on("mouseover", function (d) {
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .style('opacity', 1)
+                                .select('circle')
+                                .attr("r", d3.select(this).select('circle').attr("radius") * 1.05);
+                        }).on("mouseout", function () {
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .style('opacity', .8)
+                                .select('circle')
+                                .attr("r", d3.select(this).select('circle').attr("radius"));
+                            // return tooltip.style("visibility", "hidden");
+                        })
+                        .on('click', function (d) {
+                            $('.bubble-content').css({ 'height': '100vh', 'background': colors[d.cluster] })
+                                .attr('score', d.LABEL).attr('text', d.FIRST3).attr('color', colors[d.cluster]);
+                            $('.tweet-content').html(d.RETWEET);
+                            $('.title-content').html(d.title);
+                            $('.date').html(d.DATETIME);
+                        });
+                    //addcircle to the group
+                    node.append("circle")
+                        .style("fill", function (d) {
+                            return colors[d.cluster];
+                        }).attr("r", function (d) { return d.radius })
+                        .attr('radius', function (d) {
+                            return d.radius;
+                        })
+                    //add text to the group    
+                    node.append("text")
+                        .attr("text-anchor", "middle")
+                        .append("tspan")
+                        .attr('x', 0)
+                        .attr('y', '.3em').style('fill', '#000')
+                        .text(function (d, i) {
+                            if (parseInt(d.RETWEET) <= 200) return d.RETWEET;
+                            else return d.FIRST3;
+                        });
+                    for (var i in colors) {
+                        var h = 50;
+                        var texts = ['Negative', 'neutral', 'Positive'];
+                        var textNode = svg.append('g').attr('transform', 'translate(' + (width - 200) + ', ' + (height - (100 + h * i)) + ')')
+                            .style('cursor', 'pointer')
+                            .on('click', () => {
+                                firstTime = !firstTime;
+                                svg.remove();
+                                createNodes();
+                            });
+                        textNode.append('rect').style('width', 20).style('height', 20).style('fill', colors[i])
+                        textNode.append('text')
+                            .attr('dx', 30).attr('dy', '1.2em').text(texts[i]);
+                    }
+                    function tick(e) {
+                        if (!firstTime) node.each(clusterT(10 * e.alpha * e.alpha));
+                        node.each(collide(.5))
+                            //.attr("transform", functon(d) {});
+                            .attr("transform", function (d) {
+                                var k = "translate(" + d.x + "," + d.y + ")";
+                                return k;
+                            })
+                    }
+                }
+                // Move d to be adjacent to the cluster node.
+                var clusterT = function (alpha) {
+                    return function (d) {
+                        var cluster = clusters[d.cluster];
+                        if (cluster === d) return;
+                        var x = d.x - cluster.x,
+                            y = d.y - cluster.y,
+                            l = Math.sqrt(x * x + y * y),
+                            r = d.radius + cluster.radius;
+                        if (l != r) {
+                            l = (l - r) / l * alpha;
+                            d.x -= x *= l;
+                            d.y -= y *= l;
+                            cluster.x += x;
+                            cluster.y += y;
+                        }
+                    };
+                }
+                // Resolves collisions between d and all other circles.
+                function collide(alpha) {
+                    var quadtree = d3.geom.quadtree(nodes);
+                    return function (d) {
+                        var r = d.radius + maxRadius + Math.max(padding, clusterPadding),
+                            nx1 = d.x - r,
+                            nx2 = d.x + r,
+                            ny1 = d.y - r,
+                            ny2 = d.y + r;
+                        quadtree.visit(function (quad, x1, y1, x2, y2) {
+                            if (quad.point && (quad.point !== d)) {
+                                var x = d.x - quad.point.x,
+                                    y = d.y - quad.point.y,
+                                    l = Math.sqrt(x * x + y * y),
+                                    r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? padding : clusterPadding);
+                                if (l < r) {
+                                    l = (l - r) / l * alpha;
+                                    d.x -= x *= l;
+                                    d.y -= y *= l;
+                                    quad.point.x += x;
+                                    quad.point.y += y;
+                                }
+                            }
+                            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+                        });
+                    };
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
