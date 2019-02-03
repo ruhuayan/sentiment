@@ -1,0 +1,214 @@
+
+$pink: #E73C7E;
+$pink-dark: #b4004e;
+$pink-light: #ff77a9;
+$blue: #0053ba;
+$blue-light: #0069ed;
+@mixin btnStyle($bgColor, $hoverColor) {
+    min-width: 80px;
+    display: inline-block;
+    border: none;
+    padding: 5px 1rem;
+    text-decoration: none;
+    background: $bgColor;
+    color: #ffffff;
+    font-size: 1rem;
+    cursor: pointer;
+    text-align: center;
+    transition: background 250ms ease-in-out,
+                transform 150ms ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+    &:enabled{
+        &:hover,
+        &:focus {
+            background: $hoverColor;
+        }
+    
+        &:active {
+            transform: scale(0.98);
+        }
+    }
+    
+    &:disabled{
+        background: $pink;
+        cursor: default;
+    }
+    
+}
+html, body { height: 100%;}
+body{
+  font-family: Roboto, Arial, sans-serif;
+  margin: 0;
+  overflow: hidden;
+}
+header {
+    display: flex; 
+    align-items: center;
+    box-sizing: border-box;
+    background: $pink;
+    height: 50px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.04), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.12);
+    .logo{
+        color: #fff;
+        // line-height: 50px;
+        padding-left: 2rem;
+        font-size: 20px;
+        font-weight: 500;
+        flex: 1;
+    }
+    .form{
+        margin-right: 3rem;
+        button{
+            @include btnStyle($pink-dark, $pink-light );
+        }
+    }
+   
+}
+    a {
+    text-decoration: none; }
+    a:hover {
+      text-decoration: none; }
+  
+  .content {
+        padding-left: 2rem;
+        min-height: 300px;
+     }
+    .content #hightchart {
+      width: 96%;
+      left: 2%;
+      top: 12%;
+      height: 85vh; }
+  
+  .footer {
+    width: 100%;
+    text-align: center; 
+    font-size: 12px;
+    }
+
+  #layer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 50px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 100;
+    width: 0;
+    -webkit-transition: all 1s;
+    /* Safari */
+    transition: all 1s; }
+    #layer svg {
+      top: 0;
+      width: 90%; 
+    }
+    #layer .bubble-content {
+      position: fixed;
+      width: 280px;
+      top: 0;
+      right: 0;
+      height: 0;
+      margin-top: 50px;
+      background: #abd5ff;
+      -webkit-transition: height 1s;
+      /* Safari */
+      transition: height 1s;
+      overflow: hidden; }
+      #layer .bubble-content .top-logo {
+        border: 1px soid #86bfef;
+        width: 100%;
+        text-align: center;
+        background: #f3faff;
+        img{
+            width: 10em;
+            height: auto;
+        } 
+       }
+        #layer .bubble-content .top-logo i {
+          color: #abd5ff; }
+      #layer .bubble-content .main-content {
+        padding: 1.5rem;
+        color: #fff; 
+        .title-content{
+            height: 160px;
+            font-size: 12px;
+
+        }
+      }
+        #layer .bubble-content .main-content .subtitle {
+          font-size: 1.5rem;
+          margin-top: 1.5rem;
+          margin-bottom: .5rem;
+          font-weight: bold; }
+        #layer .bubble-content .main-content .tweet-content {
+          font-size: 3rem; }
+        #layer .bubble-content .main-content .button {
+          margin-top: 1rem; 
+            button{
+                @include btnStyle($blue-light, $blue);
+            }
+        }
+  
+  #layer.pane {
+    background: #86bfef;
+    opacity: 0.6;
+    cursor: pointer;
+    display: flex;
+    align-items: center; }
+    #layer.pane:hover {
+      opacity: 1; }
+    #layer.pane::before {
+      content: url(../img/backward.svg);
+      width: 1.5rem;
+      padding-left: 3px; }
+.instruction-modal{
+    display: none;
+    background: rgba(0, 0, 0, .3);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    .instruction-pane{
+        position: relative;
+        width: 300px;
+        background: #fff;
+        margin: auto;
+        padding: 1rem;
+        margin-top: 100px;
+        color: $blue-light;
+        .instruction-title{
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .instruction-content{
+            text-align: justify;
+        }
+        .close-btn {
+            width: 1.5rem;
+            position: absolute;
+            right: .2rem;
+            top: .2rem;
+            cursor: pointer;
+            :hover{
+                background: #abd5ff;
+            }
+            // img{}
+        }
+    }
+    
+}
+
+.highcharts-credits {
+    display: none;
+}
+.highcharts-range-selector-buttons{
+    display: none;
+}
+.highcharts-exporting-group{
+    display: none;
+}
+  
